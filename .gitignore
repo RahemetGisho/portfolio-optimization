@@ -46,4 +46,9 @@ htmlcov/
 # Python tools
 .mypy_cache/
 .ruff_cache/
+<<<<<<< HEAD
 models/
+=======
+
+models/
+>>>>>>> task-2
