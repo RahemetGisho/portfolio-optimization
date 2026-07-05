@@ -1,0 +1,49 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Data (IMPORTANT)
+# Keep raw/processed data out of git
+data/raw/
+data/processed/
+
+# Outputs / reports
+reports/
+*.png
+*.jpg
+*.jpeg
+*.svg
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python tools
+.mypy_cache/
+.ruff_cache/
+
