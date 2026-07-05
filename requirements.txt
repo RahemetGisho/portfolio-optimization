@@ -1,0 +1,32 @@
+# Data acquisition 
+yfinance
+
+# Core data wrangling
+pandas
+numpy
+python-dotenv
+
+# Visualization 
+matplotlib
+seaborn
+
+# Statistics / classical time series
+statsmodels
+pmdarima
+scipy
+
+# Machine learning / deep learning
+scikit-learn
+tensorflow-cpu
+
+# Portfolio optimization
+PyPortfolioOpt
+
+# Testing
+pytest
+pytest-cov
+
+# Notebook environment 
+jupyter
+ipykernel
+nbformat
