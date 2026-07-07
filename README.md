@@ -1,82 +1,103 @@
-# Portfolio Optimization — GMF Investments
+# Portfolio Optimization & Time Series Forecasting
 
-Time series forecasting and portfolio optimization pipeline built for GMF Investments'
-Financial Analyst challenge. Covers data extraction/cleaning/EDA, classical + deep learning forecasting models, future forecasting, Modern Portfolio Theory optimization, and strategy backtesting.
+An end-to-end quantitative investment pipeline that combines time series forecasting and Modern Portfolio Theory (MPT) to forecast Tesla (TSLA) price dynamics, optimize asset allocation across TSLA, BND, and SPY, and evaluate portfolio performance through historical backtesting.
 
 ## Project Structure
 
-````
+```
 portfolio-optimization/
-├── .github/workflows/unittests.yml
-├── .vscode/settings.json
-├── requirements.txt
-├── data/
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-├── scripts/
+├── .venv/
+├── .vscode/
+├── data/                      # Raw and processed market data
+├── models/                    # Serialized/trained forecasting models
+├── notebook/
+│   ├── preprocess_and_eda.ipynb
+│   ├── time_series_forecasting.ipynb
+│   ├── forecasting.ipynb
+│   ├── portfolio.ipynb
+│   └── backtesting.ipynb
+├── reports/                   # Generated reports, plots, and summaries
+├── scripts/                   # Standalone/CLI-runnable scripts
 ├── src/
-├── README.md
-└── tests/
-
-## Setup
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-
-````
-
-## Running the Notebooks
-
-```bash
-jupyter notebook notebooks/preprocess_and_eda.ipynb
+│   ├── forecaster.py          # ARIMA/SARIMA & LSTM model logic
+│   ├── portfolio_optimizer.py # MPT / Efficient Frontier logic
+│   └── backtester.py          # Strategy backtesting logic
+├── tests/                     # Unit tests
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
+└── README.md
 ```
 
-## Key Findings: Task 1 (Preprocessing & EDA)
+## Workflow
 
-**Data quality:** TSLA, BND, and SPY daily OHLCV data (2015-01-01 → 2026-06-30) was extracted, reindexed
-onto the full business-day calendar, and cleaned via forward-fill + linear interpolation (never
-backward-fill, to avoid look-ahead bias). No irrecoverable data-quality issues were found beyond routine
-calendar gaps.
+### 1. Data Preprocessing & Exploratory Analysis
 
-**Stationarity (Augmented Dickey-Fuller test):**
+- Fetch historical OHLCV data for TSLA, BND, and SPY via `yfinance`
+- Clean and validate data types, handle missing values
+- Visualize closing prices, daily returns, and rolling volatility
+- Detect outliers and analyze days with unusual returns
+- Test stationarity (Augmented Dickey-Fuller test) on prices and returns
+- Compute foundational risk metrics: Value at Risk (VaR) and Sharpe Ratio
 
-| Ticker | Adj Close                | Daily Return         |
-| ------ | ------------------------ | -------------------- |
-| TSLA   | Non-stationary (p=0.833) | Stationary (p<0.001) |
-| BND    | Non-stationary (p=0.841) | Stationary (p<0.001) |
-| SPY    | Non-stationary (p=0.994) | Stationary (p<0.001) |
+### 2. Time Series Forecasting
 
-**Risk metrics (95% VaR, annualized return/volatility, Sharpe Ratio @ 2% risk-free rate):**
+- Chronological train/test split (no shuffling) to preserve temporal structure
+- **ARIMA/SARIMA**: parameter selection via ACF/PACF and `auto_arima` (pmdarima)
+- **LSTM**: sequence-based deep learning model (e.g., 60-day lookback window)
+- Model evaluation via MAE, RMSE, and MAPE
+- Comparative discussion of statistical vs. deep learning performance
 
-| Ticker | Historical VaR | Ann. Return | Ann. Volatility | Sharpe Ratio |
-| ------ | -------------- | ----------- | --------------- | ------------ |
-| TSLA   | -6.01%         | 35.67%      | 60.31%          | 0.56         |
-| BND    | -0.63%         | 0.79%       | 6.03%           | -0.20        |
-| SPY    | -1.61%         | 16.61%      | 16.28%          | 0.90         |
+### 3. Future Trend Forecasting
 
-## Key Findings: Task 2 (Forecasting Models)
+- Generate 6–12 month forward forecasts using the best-performing model
+- Visualize forecasts with confidence intervals alongside historical data
+- Analyze how forecast uncertainty widens over the horizon
+- Summarize market opportunities and risks implied by the forecast
 
-**Setup:** chronological train/test split at `2025-01-01` (no shuffling); ARIMA/SARIMA order selected via
-`auto_arima` (AIC-minimizing stepwise search); LSTM uses a 60-day lookback window with a scaler fit on
-training data only.
+### 4. Portfolio Optimization (Modern Portfolio Theory)
 
-**Model comparison (live TSLA data):**
+- Use TSLA's forecasted return as its expected return; historical annualized returns for BND and SPY
+- Compute the covariance matrix across all three assets
+- Generate the Efficient Frontier using `PyPortfolioOpt` / `scipy.optimize`
+- Identify the Maximum Sharpe Ratio (Tangency) Portfolio and Minimum Volatility Portfolio
+- Recommend a final portfolio allocation with expected return, volatility, and Sharpe Ratio
 
-| Metric   | ARIMA/SARIMA | Baseline LSTM | Optimized LSTM |
-| -------- | ------------ | ------------- | -------------- |
-| MAE ($)  | 55.48        | **13.03**     | 14.58          |
-| RMSE ($) | 72.62        | **16.80**     | 18.80          |
-| MAPE (%) | 17.69%       | **3.69%**     | 4.12%          |
+### 5. Strategy Backtesting
 
-## Next Steps (Tasks 3–5, not yet implemented here)
+- Backtest the optimized portfolio over a held-out period (e.g., the final year of data)
+- Benchmark against a static 60% SPY / 40% BND portfolio
+- Compare cumulative returns, total/annualized return, Sharpe Ratio, and maximum drawdown
+- Reflect on strategy viability and backtest limitations
 
-- **Task 3:** iteratively extend the best Task 2 model's forecast 6–12 months out
-  (`LSTMForecaster.forecast_iteratively` and `ARIMAForecaster.predict(n_periods=...)`
-  are already built to support this).
-- **Task 4:** feed the Task 3 TSLA return forecast plus BND/SPY historical returns
-  into `PyPortfolioOpt` for Efficient Frontier optimization.
-- **Task 5:** backtest the Task 4 optimal weights against a 60/40 SPY/BND benchmark
-  over the most recent year of data.
+## Tech Stack
+
+- **Data & Wrangling**: `pandas`, `numpy`, `yfinance`
+- **Statistical Modeling**: `statsmodels`, `pmdarima`
+- **Deep Learning**: `tensorflow` / `keras` (LSTM)
+- **Portfolio Optimization**: `PyPortfolioOpt`, `scipy.optimize`
+- **Visualization**: `matplotlib`, `seaborn`
+- **Testing**: `pytest`
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd portfolio-optimization
+
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+Run the notebooks in `notebook/` sequentially (`preprocess_and_eda` → `time_series_forecasting` / `forecasting` → `portfolio` → `backtesting`), or use the modular pipeline components in `src/`.
+
+## Testing
+
+```bash
+pytest
+```
