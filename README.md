@@ -11,11 +11,6 @@ portfolio-optimization/
 ├── data/                      # Raw and processed market data
 ├── models/                    # Serialized/trained forecasting models
 ├── notebook/
-│   ├── preprocess_and_eda.ipynb
-│   ├── time_series_forecasting.ipynb
-│   ├── forecasting.ipynb
-│   ├── portfolio.ipynb
-│   └── backtesting.ipynb
 ├── reports/                   # Generated reports, plots, and summaries
 ├── scripts/                   # Standalone/CLI-runnable scripts
 ├── src/
