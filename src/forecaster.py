@@ -14,12 +14,7 @@ def generate_future_pipeline_forecast(
     forecast_horizon=252,
     lookback_window=60,
 ):
-    """
-    Production-grade modular forecasting pipeline for TSLA stock trends.
-    Ingests historical data, runs recursive multi-step forecasting via LSTM,
-    compares with ARIMA baseline, overlays statistical confidence bands,
-    and generates visual assets.
-    """
+
     print("Starting Modular Production Forecasting Pipeline...")
 
     # 1. Ingestion & Robust Error Handling
